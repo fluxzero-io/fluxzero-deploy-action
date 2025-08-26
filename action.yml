@@ -1,0 +1,28 @@
+name: "Flux Host Deploy"
+description: "Deploy an application to a Flux Host cluster"
+author: flux-capacitor-io
+branding:
+  icon: upload-cloud
+  color: gray-dark
+
+inputs:
+  token:
+    description: "A Flux Host System API JWT"
+    required: true
+  cluster-name:
+    description: "The name of the cluster to deploy the application to"
+    required: true
+  application-name:
+    description: "The name of the application to deploy"
+    required: true
+  image-name:
+    description: "The name of the docker image"
+    required: true
+  version:
+    description: "The version/tag of the docker image"
+    required: false
+    default: "latest"
+
+runs:
+  using: "node20"
+  main: "dist/index.js"
