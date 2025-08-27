@@ -3,6 +3,7 @@ name: Release on tag
 on:
   push:
     tags: ['v*.*.*']
+  workflow_dispatch:
 
 permissions:
   contents: write
