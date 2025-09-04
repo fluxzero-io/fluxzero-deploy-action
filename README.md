@@ -1,9 +1,9 @@
-# Flux Host Deploy Action
+# Fluxzero Deploy Action
 
-[![GitHub release](https://img.shields.io/github/v/release/flux-capacitor-io/flux-host-deploy-action?display_name=tag&sort=semver)](https://github.com/flux-capacitor-io/flux-host-deploy-action/releases)
-[![GitHub Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-Use%20this%20Action-2ea44f)](https://github.com/marketplace/actions/flux-host-deploy)
+[![GitHub release](https://img.shields.io/github/v/release/fluxzero-io/fluxzero-deploy-action?display_name=tag&sort=semver)](https://github.com/fluxzero-io/fluxzero-deploy-action/releases)
+[![GitHub Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-Use%20this%20Action-2ea44f)](https://github.com/marketplace/actions/fluxzero-deploy)
 
-This action deploys an application to a Flux Host cluster.
+This action deploys an application to a Fluxzero cluster.
 ---
 
 ## Usage
@@ -15,7 +15,7 @@ jobs:
     steps:
       - name: Deploy application to cluster
         id: deploy
-        uses: flux-capacitor-io/flux-host-deploy-action@v1
+        uses: fluxzero-io/fluxzero-deploy-action@v1
         with:
           token: ${{ steps.jwt.outputs.token }}
           cluster-name: "Production Cluster"
@@ -29,7 +29,7 @@ jobs:
 ## Inputs
 | Name               | Required | Default | Description                                          |
 |--------------------|:--------:|:-------:|------------------------------------------------------|
-| `token`            |   yes    |    —    | A Flux Host System API JWT                           |
+| `token`            |   yes    |    -    | A Fluxzero System API JWT                            |
 | `cluster-name`     |   yes    |    -    | The name of the cluster to deploy the application to |
 | `application-name` |   yes    |    -    | The name of the application to deploy                |
 | `image-name`       |   yes    |    -    | The name of the docker image                         |
@@ -48,5 +48,5 @@ This actions has no outputs
 - The `token` input is masked in workflow logs.
 - For maximum supply-chain safety, pin this action to a specific commit SHA:  
   ```yaml
-  uses: flux-capacitor-io/flux-host-deploy-action@<commit-sha>
+  uses: fluxzero-io/fluxzero-deploy-action@<commit-sha>
   ```

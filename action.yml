@@ -1,13 +1,13 @@
-name: "Flux Host Deploy"
-description: "Deploy an application to a Flux Host cluster"
-author: flux-capacitor-io
+name: "Fluxzero Deploy"
+description: "Deploy an application to a Fluxzero cluster"
+author: fluxzero-io
 branding:
   icon: upload-cloud
   color: gray-dark
 
 inputs:
   token:
-    description: "A Flux Host System API JWT"
+    description: "A Fluxzero System API JWT"
     required: true
   cluster-name:
     description: "The name of the cluster to deploy the application to"

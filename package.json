@@ -1,5 +1,5 @@
 {
-  "name": "flux-host-deploy-action",
+  "name": "fluxzero-deploy-action",
   "version": "1.0.0",
   "main": "src/index.ts",
   "scripts": {
