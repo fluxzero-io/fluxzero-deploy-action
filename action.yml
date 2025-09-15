@@ -22,6 +22,10 @@ inputs:
     description: "The version/tag of the docker image"
     required: false
     default: "latest"
+  deployment-endpoint:
+    description: "The endpoint to use for deploying the application"
+    required: false
+    default: "https://api.dashboard.fluxzero.io/deploy-application"
 
 runs:
   using: "node20"

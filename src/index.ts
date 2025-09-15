@@ -11,6 +11,7 @@ async function run() {
         const applicationName = core.getInput('application-name', {required: true});
         const imageName = core.getInput('image-name', {required: true});
         const version = core.getInput('version');
+        const deploymentEndpoint = core.getInput('deployment-endpoint')
 
         const httpClient = new HttpClient();
 
@@ -28,7 +29,7 @@ async function run() {
 
         console.log(`Deploying ${applicationName} to cluster ${clusterName} using image ${imageName}:${version}`);
 
-        const response = await httpClient.post("https://api.dashboard.flux.host/deploy-application", JSON.stringify(body), headers);
+        const response = await httpClient.post(deploymentEndpoint, JSON.stringify(body), headers);
         const responseBody = await response.readBody();
         const statusCode = response.message.statusCode;
         if (typeof statusCode !== 'number' || statusCode < 200 || statusCode >= 300) {
