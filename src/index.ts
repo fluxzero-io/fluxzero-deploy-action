@@ -10,6 +10,7 @@ async function run() {
         const clusterName = core.getInput('cluster-name', {required: true});
         const applicationName = core.getInput('application-name', {required: true});
         const imageName = core.getInput('image-name', {required: true});
+        const imageReference = core.getInput('image-reference');
         const version = core.getInput('version');
         const deploymentEndpoint = core.getInput('deployment-endpoint')
 
@@ -27,7 +28,11 @@ async function run() {
             version: version
         }
 
-        console.log(`Deploying ${applicationName} to cluster ${clusterName} using image ${imageName}:${version}`);
+        if (imageReference) {
+            Object.assign(body, {imageReference: imageReference});
+        }
+
+        console.log(`Deploying ${applicationName} to cluster ${clusterName} using image ${imageReference || `${imageName}:${version}`}`);
 
         const response = await httpClient.post(deploymentEndpoint, JSON.stringify(body), headers);
         const responseBody = await response.readBody();

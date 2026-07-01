@@ -22,6 +22,15 @@ jobs:
           application-name: "Order Service"
           image-name: "order-service"
           version: "1.0.0"
+
+      - name: Deploy application with explicit image reference
+        uses: fluxzero-io/fluxzero-deploy-action@v1
+        with:
+          token: ${{ steps.jwt.outputs.deploy-token }}
+          cluster-name: "Production Cluster"
+          application-name: "Order Service"
+          image-name: "order-service"
+          image-reference: "registry.fluxzero.io/958e1ee2f6c64facbc7765026a9a6e09/order-service:sha-123abcd"
 ```
 
 ---
@@ -33,7 +42,8 @@ jobs:
 | `cluster-name`     |   yes    |    -    | The name of the cluster to deploy the application to |
 | `application-name` |   yes    |    -    | The name of the application to deploy                |
 | `image-name`       |   yes    |    -    | The name of the docker image                         |
-| `version`          |   yes    |    -    | The version/tag of the docker image                  |
+| `image-reference`  |    no    |    -    | The full OCI image reference to deploy               |
+| `version`          |    no    | `latest`| The version/tag of the docker image                  |
 
 ---
 
