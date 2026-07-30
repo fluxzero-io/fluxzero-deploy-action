@@ -31,9 +31,9 @@ jobs:
 
       - name: Fail if build changed dist
         run: |
-          if ! git diff --quiet --exit-code dist; then
-            echo "::error::Rebuild produced changes in 'dist'."
-            echo "Hint: make sure to only tag commits by the Github bot with changes to the dist directory or re-run the latest automatic build"
+          if ! git diff --quiet --exit-code -- dist/ release-marketplace/dist/; then
+            echo "::error::Rebuild produced changes in a dist directory."
+            echo "Hint: make sure to tag a commit containing the latest generated action bundles"
             exit 1
           fi
 

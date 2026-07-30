@@ -1,0 +1,22 @@
+name: "Fluxzero Marketplace Release"
+description: "Release a newly published Marketplace application version"
+author: fluxzero-io
+
+inputs:
+  token:
+    description: "A Fluxzero System API JWT belonging to a Marketplace application maintainer"
+    required: true
+  marketplace-application-id:
+    description: "The ID of the Marketplace application to release"
+    required: true
+  version:
+    description: "The version/tag that was pushed to the Fluxzero registry"
+    required: true
+  release-endpoint:
+    description: "The endpoint to use for releasing the Marketplace application"
+    required: false
+    default: "https://api.dashboard.fluxzero.io/release-marketplace-application"
+
+runs:
+  using: "node24"
+  main: "dist/index.js"

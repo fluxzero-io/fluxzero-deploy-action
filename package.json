@@ -4,15 +4,19 @@
   "main": "src/index.ts",
   "scripts": {
     "check": "tsc",
-    "build": "ncc build --minify --license licenses.txt",
-    "ci": "npm run check && npm run build"
+    "build": "npm run build:deploy && npm run build:release-marketplace",
+    "build:deploy": "ncc build --minify --license licenses.txt",
+    "build:release-marketplace": "ncc build src/release-marketplace.ts -o release-marketplace/dist --minify --license licenses.txt",
+    "test": "node --test test/*.test.js",
+    "ci": "npm run check && npm run build && npm test"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@actions/core": "^1.11.1",
+    "@actions/core": "^2.0.3",
+    "@actions/http-client": "^3.0.2",
     "jsonwebtoken": "^9.0.2"
   },
   "devDependencies": {
