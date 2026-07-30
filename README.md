@@ -6,7 +6,7 @@
 This action deploys an application to a Fluxzero cluster.
 ---
 
-## Usage
+## Deploy an application
 
 ```yaml
 jobs:
@@ -33,23 +33,45 @@ jobs:
           image-reference: "registry.fluxzero.io/958e1ee2f6c64facbc7765026a9a6e09/order-service:sha-123abcd"
 ```
 
----
+### Inputs
 
-## Inputs
 | Name               | Required | Default | Description                                          |
 |--------------------|:--------:|:-------:|------------------------------------------------------|
 | `token`            |   yes    |    -    | A Fluxzero System API JWT                            |
 | `cluster-name`     |   yes    |    -    | The name of the cluster to deploy the application to |
 | `application-name` |   yes    |    -    | The name of the application to deploy                |
-| `image-name`       |   yes    |    -    | The name of the docker image                         |
+| `image-name`       |   yes    |    -    | The name of the Docker image                         |
 | `image-reference`  |    no    |    -    | The full OCI image reference to deploy               |
-| `version`          |    no    | `latest`| The version/tag of the docker image                  |
+| `version`          |    no    | `latest`| The version/tag of the Docker image                  |
+
+## Release a Marketplace application
+
+Marketplace application maintainers can use the side action after publishing a new image version to the Fluxzero registry:
+
+```yaml
+- name: Release Marketplace application
+  uses: fluxzero-io/fluxzero-deploy-action/release-marketplace@v1
+  with:
+    token: ${{ steps.jwt.outputs.release-token }}
+    marketplace-application-id: "order-service"
+    version: "2.0.0"
+```
+
+The `stable` release channel currently rolls the version out directly to all clusters where the Marketplace application is installed.
+
+### Inputs
+
+| Name                         | Required | Default  | Description                                             |
+|------------------------------|:--------:|:--------:|---------------------------------------------------------|
+| `token`                      |   yes    |    -     | A Fluxzero System API JWT belonging to an app maintainer |
+| `marketplace-application-id` |   yes    |    -     | The ID of the Marketplace application                   |
+| `version`                    |   yes    |    -     | The version/tag pushed to the Fluxzero registry          |
 
 ---
 
 ## Outputs
 
-This actions has no outputs
+These actions have no outputs.
 
 ---
 
