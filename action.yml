@@ -31,5 +31,5 @@ inputs:
     default: "https://api.dashboard.fluxzero.io/deploy-application"
 
 runs:
-  using: "node20"
+  using: "node24"
   main: "dist/index.js"
