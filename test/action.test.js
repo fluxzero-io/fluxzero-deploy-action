@@ -1,11 +1,22 @@
 const assert = require('node:assert/strict');
 const {spawn} = require('node:child_process');
+const fs = require('node:fs');
 const http = require('node:http');
 const path = require('node:path');
 const {test} = require('node:test');
 
 const deployActionPath = path.resolve(__dirname, '../dist/index.js');
 const releaseMarketplaceActionPath = path.resolve(__dirname, '../release-marketplace/dist/index.js');
+
+test('declares Node.js 24 for both action entrypoints', () => {
+    for (const metadataPath of [
+        path.resolve(__dirname, '../action.yml'),
+        path.resolve(__dirname, '../release-marketplace/action.yml')
+    ]) {
+        const metadata = fs.readFileSync(metadataPath, 'utf8');
+        assert.match(metadata, /^\s*using:\s*["']node24["']\s*$/m, metadataPath);
+    }
+});
 
 function runAction(actionPath, inputs) {
     const env = {...process.env};
