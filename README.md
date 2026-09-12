@@ -2,7 +2,7 @@
 
 # Fluxzero Deploy Action
 
-Take your product from GitHub to [Fluxzero Cloud](https://fluxzero.io). This action deploys an application to a Fluxzero cluster and includes a companion action for releasing Marketplace applications.
+Deploy applications from GitHub Actions to [Fluxzero Cloud](https://fluxzero.io).
 
 [Get started](https://fluxzero.io/get-started) · [How it works](https://fluxzero.io/how-it-works) · [Docs](https://fluxzero.io/docs)
 
