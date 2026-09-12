@@ -1,9 +1,14 @@
+<a href="https://fluxzero.io"><img src="https://raw.githubusercontent.com/fluxzero-io/.github/main/assets/brand/2026-09/repository-header.svg" alt="Fluxzero — The European cloud for AI-built apps" width="1280"></a>
+
 # Fluxzero Deploy Action
+
+Take your product from GitHub to [Fluxzero Cloud](https://fluxzero.io). This action deploys an application to a Fluxzero cluster and includes a companion action for releasing Marketplace applications.
+
+[Get started](https://fluxzero.io/get-started) · [How it works](https://fluxzero.io/how-it-works) · [Docs](https://fluxzero.io/docs)
 
 [![GitHub release](https://img.shields.io/github/v/release/fluxzero-io/fluxzero-deploy-action?display_name=tag&sort=semver)](https://github.com/fluxzero-io/fluxzero-deploy-action/releases)
 [![GitHub Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-Use%20this%20Action-2ea44f)](https://github.com/marketplace/actions/fluxzero-deploy)
 
-This action deploys an application to a Fluxzero cluster.
 ---
 
 ## Deploy an application

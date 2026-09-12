@@ -1,9 +1,9 @@
 name: "Fluxzero Deploy"
-description: "Deploy an application to a Fluxzero cluster"
+description: "Deploy your application from GitHub to Fluxzero Cloud."
 author: fluxzero-io
 branding:
   icon: upload-cloud
-  color: gray-dark
+  color: blue
 
 inputs:
   token:
