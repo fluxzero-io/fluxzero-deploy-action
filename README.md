@@ -4,7 +4,7 @@
 
 Deploy applications from GitHub Actions to [Fluxzero Cloud](https://fluxzero.io).
 
-[Get started](https://fluxzero.io/get-started) · [How it works](https://fluxzero.io/how-it-works) · [Docs](https://fluxzero.io/docs)
+[How it works](https://fluxzero.io/how-it-works) · [Docs](https://fluxzero.io/docs)
 
 [![GitHub release](https://img.shields.io/github/v/release/fluxzero-io/fluxzero-deploy-action?display_name=tag&sort=semver)](https://github.com/fluxzero-io/fluxzero-deploy-action/releases)
 [![GitHub Marketplace](https://img.shields.io/badge/GitHub%20Marketplace-Use%20this%20Action-2ea44f)](https://github.com/marketplace/actions/fluxzero-deploy)
