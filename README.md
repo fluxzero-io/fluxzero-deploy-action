@@ -86,6 +86,28 @@ These actions have no outputs.
   uses: fluxzero-io/fluxzero-deploy-action@<commit-sha>
   ```
 
+## Maintaining this action
+
+Both entrypoints use the GitHub Actions Node 24 runtime. CI builds and tests on
+Node 24 and 26, then runs both real actions against a local HTTP fixture with
+synthetic credentials. It never calls a live deployment or Marketplace endpoint.
+Use Node 26 for the committed distribution: run `npm ci` and `npm run ci`, then
+commit both `dist/` and `release-marketplace/dist/` with the source/lockfile change.
+
+Dependabot checks npm packages and workflow Actions daily. Minor and patch
+updates can merge only after the strict required check passes. An isolated App
+job can commit the four tested distribution files to the original bot branch;
+fresh CI must then reproduce that committed bundle before auto-merge completes.
+Its key belongs only in Dependabot secrets, outside jobs that execute PR code.
+Major updates require separate assessment. Keep Node types on the actual runtime
+line; TypeScript 7 remains excluded until ncc's embedded compiler integration
+supports it.
+
+Releases use explicit `vX.Y.Z` tags on a qualified main commit. Update the package
+version and `RELEASE_NOTES.md` before tagging. The existing release workflow
+repeats the complete checks, verifies both committed bundles, moves `vX` and
+publishes the GitHub release. Merging dependencies alone does not move `v1`.
+
 
 ---
 

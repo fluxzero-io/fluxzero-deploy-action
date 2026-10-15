@@ -1,0 +1,122 @@
+name: Action runtime
+
+on:
+  workflow_call:
+    inputs:
+      check-dist:
+        type: boolean
+        default: true
+    outputs:
+      distribution-clean:
+        value: ${{ jobs.contract.outputs.distribution-clean }}
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      distribution-clean: ${{ steps.distribution.outputs.clean }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 26
+          cache: npm
+      - name: Install, test, and rebuild both actions
+        run: |
+          npm ci
+          npm run ci
+
+      - name: Verify both committed distributions
+        id: distribution
+        env:
+          REQUIRE_COMMITTED_DIST: ${{ inputs.check-dist || github.event_name == 'workflow_dispatch' }}
+        run: |
+          if git diff --quiet --exit-code -- dist release-marketplace/dist; then
+            echo 'clean=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'clean=false' >> "$GITHUB_OUTPUT"
+            if [[ "$REQUIRE_COMMITTED_DIST" == true ]]; then
+              echo '::error::Rebuild and commit both action distributions.'
+              exit 1
+            fi
+          fi
+
+      - name: Start a local HTTP contract fixture
+        id: fixture
+        run: |
+          set -euo pipefail
+          fixture_dir="$(mktemp -d "${RUNNER_TEMP}/deploy-action-fixture.XXXXXX")"
+          node test/runtime-fixture.cjs "$fixture_dir" > "$fixture_dir/server.log" 2>&1 &
+          fixture_pid=$!
+          echo "FIXTURE_DIRECTORY=$fixture_dir" >> "$GITHUB_ENV"
+          echo "FIXTURE_PID=$fixture_pid" >> "$GITHUB_ENV"
+          for _ in {1..50}; do
+            if [[ -s "$fixture_dir/port" ]]; then
+              echo "port=$(cat "$fixture_dir/port")" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+            kill -0 "$fixture_pid"
+            sleep 0.1
+          done
+          cat "$fixture_dir/server.log"
+          exit 1
+
+      - name: Exercise the real node24 deploy action
+        uses: ./
+        with:
+          token: local-fixture-token
+          cluster-name: fixture-cluster
+          application-name: fixture-app
+          image-name: fixture-image
+          version: 1.2.3
+          image-reference: registry.invalid/fixture-image:1.2.3
+          deployment-endpoint: http://127.0.0.1:${{ steps.fixture.outputs.port }}/deploy
+
+      - name: Exercise the real node24 Marketplace side action
+        uses: ./release-marketplace
+        with:
+          token: local-fixture-token
+          marketplace-application-id: fixture-app
+          version: 1.2.3
+          release-endpoint: http://127.0.0.1:${{ steps.fixture.outputs.port }}/release
+
+      - name: Exercise a rejected deployment
+        id: rejected
+        continue-on-error: true
+        uses: ./
+        with:
+          token: local-fixture-token
+          cluster-name: fixture-cluster
+          application-name: fixture-app
+          image-name: fixture-image
+          deployment-endpoint: http://127.0.0.1:${{ steps.fixture.outputs.port }}/failure
+
+      - name: Require all request contracts and the expected failure
+        env:
+          REJECTED_OUTCOME: ${{ steps.rejected.outcome }}
+        run: |
+          test "$REJECTED_OUTCOME" = failure
+          node -e 'const a = require("node:assert/strict"); const fs = require("node:fs"); const p = require("node:path"); a.deepEqual(JSON.parse(fs.readFileSync(p.join(process.env.FIXTURE_DIRECTORY, "requests.json"))), ["/deploy", "/release", "/failure"]);'
+
+      - name: Stop the local fixture
+        if: always()
+        run: |
+          if [[ -n "${FIXTURE_PID:-}" ]]; then kill "$FIXTURE_PID" 2>/dev/null || true; fi
+
+      - name: Retain both tested distributions for a native Dependabot PR
+        if: github.event_name == 'pull_request' && github.actor == 'dependabot[bot]' && github.event.pull_request.user.login == 'dependabot[bot]'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: deploy-action-distribution-${{ github.sha }}
+          path: |
+            dist/index.js
+            dist/licenses.txt
+            release-marketplace/dist/index.js
+            release-marketplace/dist/licenses.txt
+          retention-days: 1
+          if-no-files-found: error
