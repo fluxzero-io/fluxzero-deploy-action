@@ -34,7 +34,7 @@ function runAction(actionPath, inputs) {
     });
 }
 
-async function captureRequest(actionPath, inputs, endpointInput, endpointPath) {
+async function captureRequest(actionPath, inputs, endpointInput, endpointPath, status = 200) {
     let request;
     const server = http.createServer((incoming, response) => {
         const chunks = [];
@@ -46,7 +46,7 @@ async function captureRequest(actionPath, inputs, endpointInput, endpointPath) {
                 headers: incoming.headers,
                 body: JSON.parse(Buffer.concat(chunks).toString())
             };
-            response.writeHead(200, {'Content-Type': 'application/json'});
+            response.writeHead(status, {'Content-Type': 'application/json'});
             response.end('{"accepted":true}');
         });
     });
@@ -93,6 +93,7 @@ test('keeps deploying cluster applications through the root action', async () =>
     assert.match(result.stdout, /order-service:latest/);
     assert.equal(request.method, 'POST');
     assert.equal(request.path, '/deploy-application');
+    assert.equal(request.headers.authorization, 'Bearer secret-token');
     assert.deepEqual(request.body, {
         clusterName: 'Production Cluster',
         applicationName: 'Order Service',
@@ -100,3 +101,35 @@ test('keeps deploying cluster applications through the root action', async () =>
         version: 'latest'
     });
 });
+
+test('preserves an explicit OCI image reference alongside the legacy fields', async () => {
+    const imageReference = 'registry.invalid/order-service:sha-123abcd';
+    const {request, result} = await captureRequest(deployActionPath, {
+        token: 'secret-token', 'cluster-name': 'cluster', 'application-name': 'orders',
+        'image-name': 'order-service', version: 'ignored-tag', 'image-reference': imageReference
+    }, 'deployment-endpoint', '/deploy');
+    assert.equal(result.code, 0, result.stderr);
+    assert.equal(request.body.imageReference, imageReference);
+    assert.equal(request.body.imageName, 'order-service');
+    assert.equal(request.body.version, 'ignored-tag');
+});
+
+for (const [label, actionPath, inputs, endpoint] of [
+    ['deploy', deployActionPath, {'cluster-name': 'cluster', 'application-name': 'orders', 'image-name': 'orders'}, 'deployment-endpoint'],
+    ['Marketplace', releaseMarketplaceActionPath, {'marketplace-application-id': 'orders', version: '1.2.3'}, 'release-endpoint']
+]) {
+    for (const status of [401, 503]) {
+        test(`${label} fails the workflow when the API responds with ${status}`, async () => {
+            const {request, result} = await captureRequest(actionPath, {...inputs, token: 'synthetic-token'}, endpoint, '/reject', status);
+            assert.equal(request.method, 'POST');
+            assert.notEqual(result.code, 0);
+            assert.match(result.stdout + result.stderr, new RegExp(`Request failed with status code: ${status}`));
+        });
+    }
+    test(`${label} rejects a missing token before making a request`, async () => {
+        const {request, result} = await captureRequest(actionPath, {...inputs, token: ''}, endpoint, '/never');
+        assert.equal(request, undefined);
+        assert.notEqual(result.code, 0);
+        assert.match(result.stdout + result.stderr, /Input required and not supplied: token/);
+    });
+}

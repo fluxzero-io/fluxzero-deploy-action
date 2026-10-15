@@ -3,14 +3,14 @@
   "version": "1.0.0",
   "main": "src/index.ts",
   "engines": {
-    "node": ">=24"
+    "node": ">=24 <27"
   },
   "scripts": {
     "check": "tsc",
     "build": "npm run build:deploy && npm run build:release-marketplace",
     "build:deploy": "ncc build --minify --license licenses.txt",
     "build:release-marketplace": "ncc build src/release-marketplace.ts -o release-marketplace/dist --minify --license licenses.txt",
-    "test": "node --test test/*.test.js",
+    "test": "node --test test/*.test.js test/*.test.mjs",
     "ci": "npm run check && npm run build && npm test"
   },
   "keywords": [],
