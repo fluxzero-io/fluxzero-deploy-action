@@ -18,8 +18,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "@actions/core": "^2.0.3",
-    "@actions/http-client": "^3.0.2"
+    "@actions/core": "^3.0.1",
+    "@actions/http-client": "^4.0.1"
   },
   "devDependencies": {
     "@types/node": "^24.13.3",
