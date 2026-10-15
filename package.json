@@ -19,11 +19,9 @@
   "description": "",
   "dependencies": {
     "@actions/core": "^2.0.3",
-    "@actions/http-client": "^3.0.2",
-    "jsonwebtoken": "^9.0.2"
+    "@actions/http-client": "^3.0.2"
   },
   "devDependencies": {
-    "@types/jsonwebtoken": "^9.0.7",
     "@types/node": "^24.13.3",
     "@vercel/ncc": "^0.38.2",
     "typescript": "^5.6.3"
