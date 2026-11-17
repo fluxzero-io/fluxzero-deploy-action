@@ -105,6 +105,7 @@ jobs:
           github-token: ${{ steps.app-token.outputs.token }}
           script: |
             const fs = require('node:fs/promises');
+            const {createHash} = require('node:crypto');
             const path = require('node:path');
             const repository = context.repo;
             const expected = context.payload.pull_request;
@@ -121,11 +122,15 @@ jobs:
             for (const name of ['dist/index.js', 'dist/licenses.txt', 'release-marketplace/dist/index.js', 'release-marketplace/dist/licenses.txt']) {
               const content = await fs.readFile(path.join(process.env.BUNDLE_DIRECTORY, name));
               if (content.length === 0 || content.length > 10 * 1024 * 1024) throw new Error('Invalid bundle size.');
-              const {data: blob} = await github.rest.git.createBlob({...repository, content: content.toString('base64'), encoding: 'base64'});
-              const target = name;
-              const previous = current.tree.find(entry => entry.path === target);
-              if (previous?.sha !== blob.sha || previous?.mode !== '100644') {
-                changes.push({path: target, mode: '100644', type: 'blob', sha: blob.sha});
+              const sha = createHash('sha1').update(`blob ${content.length}\0`).update(content).digest('hex');
+              const previous = current.tree.find(entry => entry.path === name);
+              // Reuse identical Git objects; uploading unchanged bundles is unnecessary.
+              if (previous?.sha !== sha) {
+                const {data: blob} = await github.rest.git.createBlob({...repository, content: content.toString('base64'), encoding: 'base64'});
+                if (blob.sha !== sha) throw new Error('Uploaded bundle does not match the tested bytes.');
+              }
+              if (previous?.sha !== sha || previous?.mode !== '100644') {
+                changes.push({path: name, mode: '100644', type: 'blob', sha});
               }
             }
             let head = pr.head.sha;

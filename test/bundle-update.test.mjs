@@ -37,7 +37,7 @@ test('an already current bundle queues the original head without a generated com
     await fixture(async state => {
         state.unchanged = true;
         await state.run();
-        assert.equal(state.calls.some(([name]) => ['createTree', 'createCommit', 'updateRef'].includes(name)), false);
+        assert.equal(state.calls.some(([name]) => ['createBlob', 'createTree', 'createCommit', 'updateRef'].includes(name)), false);
         assert.deepEqual(state.outputs, {'head-sha': 'qualified-head'});
     });
 });
@@ -73,6 +73,15 @@ test('a truncated tree or empty bundle cannot update a branch', async () => {
     });
 });
 
+test('a mismatched uploaded blob cannot update the branch', async () => {
+    await fixture(async state => {
+        state.mismatchBlob = true;
+        await assert.rejects(state.run(), /does not match the tested bytes/);
+        assert.equal(state.calls.some(([name]) => ['createTree', 'createCommit', 'updateRef'].includes(name)), false);
+        assert.deepEqual(state.outputs, {});
+    });
+});
+
 test('a non-fast-forward rejection propagates without reporting a mergeable head', async () => {
     await fixture(async state => {
         state.rejectUpdate = true;
@@ -102,7 +111,7 @@ async function fixture(check) {
     const github = {rest: {pulls: {get: record('getPull', () => state.pr)}, git: {
         getCommit: record('getCommit', () => ({tree: {sha: 'existing-tree'}})),
         getTree: record('getTree', () => ({truncated: state.truncated, tree: Object.entries(files).map(([name, content]) => ({path: name, mode: '100644', sha: state.unchanged ? blobHash(content) : 'old-blob'}))})),
-        createBlob: record('createBlob', request => ({sha: blobHash(Buffer.from(request.content, 'base64'))})),
+        createBlob: record('createBlob', request => ({sha: state.mismatchBlob ? 'wrong-blob' : blobHash(Buffer.from(request.content, 'base64'))})),
         createTree: record('createTree', () => ({sha: 'new-tree'})),
         createCommit: record('createCommit', () => ({sha: 'new-commit'})),
         updateRef: record('updateRef', () => {if (state.rejectUpdate) throw new Error('reference moved'); return {};}),
